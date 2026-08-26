@@ -1,0 +1,19 @@
+# Environment variables
+.env
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Runtime files
+applications*.csv
+apply-state-*.json
+
+# Browser sessions
+.*-chrome-profile/
+.*-apply-profile/
+
+# Resume / personal documents
+*.pdf
