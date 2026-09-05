@@ -1,33 +1,358 @@
-.home{
+.home {
+  --surface: #15191f;
+  --surface-raised: #1d222a;
+  --line: #2d333d;
+  --muted: #8b929d;
+  --pink: #eb0754;
+  --violet: #b56ee6;
+  min-height: 100svh;
+  padding: 3.25rem clamp(1.25rem, 5vw, 5rem) 1.5rem;
+  background: #0b0e12;
+  color: #f5f6f8;
+  font-family: "Segoe UI", sans-serif;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-header {
+  max-width: 720px;
+  margin: 0 auto 2.25rem;
+  text-align: center;
+}
+
+.eyebrow {
+  margin-bottom: 0.85rem;
+  color: var(--pink);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.home h1 {
+  margin: 0;
+  color: #f7f7f8;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 750;
+  line-height: 1.1;
+}
+
+.home h1 span {
+  color: var(--violet);
+}
+
+.home-intro {
+  max-width: 540px;
+  margin: 0.7rem auto 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.interview-input-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  max-width: 1050px;
+  min-height: 450px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: var(--surface);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.3);
+}
+
+.form-panel {
+  padding: 1.5rem 1.75rem;
+}
+
+.job-panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--line);
+}
+
+.profile-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-heading > div,
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.home h2 {
+  margin: 0;
+  color: #f3f4f6;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.panel-icon,
+.upload-icon,
+.form-note > span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: rgba(235, 7, 84, 0.14);
+  color: var(--pink);
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.panel-icon svg,
+.upload-icon svg {
+  width: 70%;
+  height: 70%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.required-badge,
+.highlight {
+  color: var(--pink);
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.required-badge {
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.2rem;
+  background: rgba(235, 7, 84, 0.1);
+}
+
+.home textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 0.9rem;
+  resize: none;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  outline: none;
+  background: var(--surface-raised);
+  color: #eceef2;
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.home textarea:focus {
+  border-color: var(--pink);
+}
+
+.job-panel textarea {
+  flex: 1;
+  margin-top: 1rem;
+}
+
+.character-count {
+  align-self: flex-end;
+  margin-top: -1.35rem;
+  padding-right: 0.55rem;
+  color: #6f7782;
+  font-size: 0.58rem;
+}
+
+.input-group {
+  margin-top: 1.15rem;
+}
+
+.field-label,
+.self-description-group > label {
+  margin-bottom: 0.45rem;
+  color: #dfe2e7;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 108px;
+  gap: 0.35rem;
+  border: 1px dashed #47505d;
+  border-radius: 0.45rem;
+  color: #f0f1f3;
+  cursor: pointer;
+  font-size: 0.68rem;
+}
+
+.file-label:hover {
+  border-color: var(--pink);
+  background: rgba(235, 7, 84, 0.04);
+}
+
+.upload-icon {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.15rem;
+  font-size: 1rem;
+}
+
+.upload-icon svg {
+  width: 58%;
+  height: 58%;
+}
+
+.file-label small {
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 1.1rem;
+  color: #737b86;
+  font-size: 0.58rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.self-description-group textarea {
+  min-height: 76px;
+}
+
+.form-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #273c69;
+  border-radius: 0.4rem;
+  background: #111d35;
+  color: #b9c7e4;
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+
+.form-note > span {
+  flex: 0 0 auto;
+  width: 0.85rem;
+  height: 0.85rem;
+  background: #5a98ed;
+  color: #0e2344;
+  font-size: 0.55rem;
+}
+
+.primary-button {
+  align-self: flex-end;
+  margin-top: auto;
+  padding: 0.8rem 1.25rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: var(--pink);
+  box-shadow: 0 8px 20px rgba(235, 7, 84, 0.22);
+  color: white;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.primary-button:hover {
+  background: #ff1765;
+}
+
+.home-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1050px;
+  margin: 1.2rem auto 0;
+  color: #737b86;
+  font-size: 0.6rem;
+}
+
+.home-footer nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.home-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-footer a:hover {
+  color: #dfe2e7;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 700px) {
+  .home {
+    padding: 2.25rem 1rem 1.25rem;
+  }
+
+  .home-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .interview-input-group {
+    grid-template-columns: 1fr;
+  }
+
+  .job-panel {
+    min-height: 340px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .profile-panel {
+    min-height: 430px;
+  }
+
+  .home-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .home-footer nav {
+    gap: 0.8rem;
+  }
+
+  .primary-button {
     width: 100%;
-    min-height: 100vh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .interview-input-group{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    textarea{
-        height: 100%;
-        border: none;
-        outline: none;
-        padding-inline: 1rem;
-        padding-block: 0.75rem;
-        border-radius: 0.5rem;
-        color: whitesmoke;
-        background-color: #1a1f27;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        
-    }
-    .left{
-        background-color: red;
-        align-self: stretch;
-    }
-    .right{
-        background-color: green;
-    }
+  }
 }
