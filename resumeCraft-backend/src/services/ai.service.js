@@ -1,6 +1,6 @@
 const { GoogleGenAI } = require("@google/genai");
 const { z } = require("zod");
-const puppeteer = require("puppeteer");
+const puppeteer = await import("puppeteer");
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GENAI_API_KEY,
@@ -125,8 +125,7 @@ async function generateInterviewReport({
 }
 
 async function generatePdfFromHtml(htmlContent) {
-  console.log("HTML CONTENT:");
-  console.log(htmlContent);
+  const puppeteer = await import("puppeteer");
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setContent(htmlContent, { waitUntil: "networkidle0" });
