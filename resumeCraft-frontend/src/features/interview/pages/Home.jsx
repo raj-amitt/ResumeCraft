@@ -1,10 +1,47 @@
 import "../style/home.scss";
+import { useState, useRef } from "react";
+import { useInterview } from "../hooks/useInterview";
+import {useNavigate} from "react-router"
+import { useAuth } from "../../auth/hooks/useAuth";
 
 const Home = () => {
+
+  const{loading, generateReport, reports}= useInterview()
+
+  const [jobDescription, setJobDescription] = useState("")
+  const [selfDescription, setSelfDescription] = useState("")
+  const [selectedResume, setSelectedResume] = useState(null)
+  const {handleLogout} = useAuth()
+  
+  const resumeInputRef = useRef()
+
+  const navigate = useNavigate()
+
+  const handleGenerateReport = async (e)=>{
+    e.preventDefault()
+    const resumeFile = resumeInputRef.current.files[0]
+    const data = await generateReport({jobDescription,selfDescription,resumeFile})
+    navigate(`/interview/${data._id}`)
+  }
+  if(loading){
+    return(
+      <main>
+        <h1>Loading your interview plan...</h1>
+      </main>
+    )
+  }
   return (
     <main className="home">
       <header className="home-header">
+        <div className="home-top-header">
         <p className="eyebrow">ResumeCraft</p>
+        <button className="button primary-button"
+        onClick={()=>{
+          handleLogout()
+          navigate('/')
+        }}
+        >Logout</button>
+        </div>
         <h1>
           Create Your <span>Interview Plan</span>
         </h1>
@@ -33,6 +70,7 @@ const Home = () => {
             Target Job Description
           </label>
           <textarea
+          onChange={(e)=>{setJobDescription(e.target.value)}}
             name="jobDescription"
             id="jobDescription"
             placeholder="Paste the full job description here... e.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'"
@@ -66,10 +104,27 @@ const Home = () => {
                   <path d="m12 11-3 3m3-3 3 3m-3-3v8" />
                 </svg>
               </span>
-              <strong>Click to upload or drag &amp; drop</strong>
-              <small>PDF (Max 3MB)</small>
+              {selectedResume ? (
+                <>
+                  <strong className="uploaded-file-status">Resume uploaded</strong>
+                  <small title={selectedResume.name}>{selectedResume.name}</small>
+                </>
+              ) : (
+                <>
+                  <strong>Click to upload or drag &amp; drop</strong>
+                  <small>PDF (Max 3MB)</small>
+                </>
+              )}
             </label>
-            <input type="file" hidden name="resume" id="resume" accept=".pdf,.docx" />
+            <input
+              ref={resumeInputRef}
+              onChange={(e) => setSelectedResume(e.target.files[0] || null)}
+              type="file"
+              hidden
+              name="resume"
+              id="resume"
+              accept=".pdf,.docx"
+            />
           </div>
 
           <div className="divider"><span>AND/OR</span></div>
@@ -77,6 +132,7 @@ const Home = () => {
           <div className="input-group self-description-group">
             <label htmlFor="selfDescription">Quick Self-Description</label>
             <textarea
+            onChange={(e)=>{setSelfDescription(e.target.value)}}
               name="selfDescription"
               id="selfDescription"
               placeholder="Briefly describe your experience, key skills, and years of experience if you don't have a resume handy..."
@@ -89,11 +145,52 @@ const Home = () => {
             personalized plan.
           </p>
 
-          <button className="button primary-button" type="submit">
+          <button onClick={handleGenerateReport} className="button primary-button" type="submit">
             <span aria-hidden="true">+</span> Generate My Interview Strategy
           </button>
         </section>
       </form>
+
+      {/* 
+      Recent reports
+        */}
+      {reports.length > 0 && (
+        <section className="recent-reports">
+          <div className="reports-heading">
+            <div>
+              <span className="panel-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M6 3h9l3 3v15H6z" />
+                  <path d="M9 11h6M9 15h6M9 7h3" />
+                </svg>
+              </span>
+              <div>
+                <h2>Recent Reports</h2>
+                <p>Your latest interview strategies</p>
+              </div>
+            </div>
+            <span className="reports-count">{reports.length} {reports.length === 1 ? "report" : "reports"}</span>
+          </div>
+          <ul className="reports-list">
+            {reports.map((report) => (
+              <li key={report._id}>
+                <button
+                  className="report-item"
+                  type="button"
+                  onClick={() => navigate(`/interview/${report._id}`)}
+                  aria-label={`Open ${report.title}`}
+                >
+                  <div className="report-details">
+                    <h3>{report.title}</h3>
+                    <p>Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <span className="match-score">{report.matchScore}% match</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <footer className="home-footer">
         <span>AI-Powered Strategy Generation - Approx 30s</span>

@@ -29,7 +29,7 @@ export const generateInterviewReport = async ({
  * @description Get interview report by interviewId 
  */
 export const getInterviewReportById = async (interviewId) => {
-  const response = await api.get(`/api/interview/report/${interviewId}`);
+  const response = await api.get(`/api/interview/${interviewId}`);
   return response.data;
 };
 
@@ -40,3 +40,16 @@ export const getAllInterviewReports = async () => {
   const response = await api.get("/api/interview/");
   return response.data;
 };
+
+
+/**
+ * @description Generate resume pdf based on user resume, self description and job description 
+ */
+export const generateResumePdf = async ({interviewReportId})=>{
+  console.log("interviewReportId:", interviewReportId);
+console.log("type:", typeof interviewReportId);
+  const response = await api.post(`/api/interview/resume/pdf/${interviewReportId}`,null,{
+    responseType:"blob"
+  })
+  return response.data
+}

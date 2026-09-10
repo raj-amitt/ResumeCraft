@@ -7,109 +7,12 @@ import {
   Milestone,
 } from "lucide-react";
 import "../style/interview.scss";
+import { useInterview } from "../hooks/useInterview";
+import { useParams } from "react-router";
+import { useNavigate } from "react-router";
+import {useAuth} from "../../auth/hooks/useAuth"
 
-const interviewReport = {
-  matchScore: 94,
-  technicalQuestions: [
-    {
-      question:
-        "How do you implement Role-Based Access Control (RBAC) middleware in an Express.js application using JWT?",
-      intention:
-        "To verify your practical understanding of security, middleware architecture, and authorization logic.",
-      answer:
-        "Explain extracting the JWT from the request header, verifying it with a secret key, and checking the decoded role against permitted roles. Mention a reusable checkRole higher-order middleware function.",
-    },
-    {
-      question:
-        "When designing MongoDB schemas, how do you decide between embedding documents versus using references?",
-      intention:
-        "To test your knowledge of data modeling and optimization for read and write performance.",
-      answer:
-        "Embedding works well for one-to-few relationships and fast reads. References are better for one-to-many or many-to-many relationships where duplication and document size are concerns.",
-    },
-    {
-      question:
-        "Describe your process for deploying a MERN application on a Linux VPS. Why use Nginx and PM2?",
-      intention:
-        "To validate your end-to-end deployment experience and production environment knowledge.",
-      answer:
-        "Cover environment setup, PM2 process management and auto-restarts, and Nginx as a reverse proxy for SSL termination, port forwarding, and static file serving.",
-    },
-    {
-      question:
-        "How do you optimize React performance and prevent unnecessary re-renders in a large-scale application?",
-      intention:
-        "To assess depth in frontend development beyond basic component creation.",
-      answer:
-        "Discuss React.memo, useMemo, useCallback, and code-splitting with React.lazy and Suspense, while profiling first to target the work that matters.",
-    },
-  ],
-  behavioralQuestions: [
-    {
-      question:
-        "Tell me about a challenging bug you encountered in production and how you resolved it.",
-      intention:
-        "To evaluate problem-solving skills, composure under pressure, and debugging methodology.",
-      answer:
-        "Use the STAR method. Highlight the debugging tools, the logical steps used to isolate the root cause, and the permanent fix that followed.",
-    },
-    {
-      question:
-        "How do you prioritize tasks when feature requests and bug fixes compete for your attention?",
-      intention:
-        "To assess time management and your ability to align work with business priorities.",
-      answer:
-        "Evaluate impact and urgency, communicate with stakeholders about business value, and break larger work into manageable milestones.",
-    },
-  ],
-  skillGaps: [
-    { skill: "Automated Testing (Unit/Integration)", severity: "medium" },
-    { skill: "Advanced DevOps/CI-CD Pipelines", severity: "low" },
-    { skill: "State Management Libraries (Redux/Zustand)", severity: "medium" },
-  ],
-  preparationPlan: [
-    {
-      day: 1,
-      focus: "Advanced Backend & Security",
-      tasks: [
-        "Review JWT refresh token strategies.",
-        "Practice complex Mongoose aggregation pipelines.",
-      ],
-    },
-    {
-      day: 2,
-      focus: "Frontend Optimization & State Management",
-      tasks: [
-        "Study React performance profiling.",
-        "Build a small Redux Toolkit or Zustand project.",
-      ],
-    },
-    {
-      day: 3,
-      focus: "DevOps and Deployment",
-      tasks: [
-        "Deep dive into Nginx configuration.",
-        "Practice a basic GitHub Actions pipeline.",
-      ],
-    },
-    {
-      day: 4,
-      focus: "Testing & Quality Assurance",
-      tasks: [
-        "Learn Jest and Supertest basics.",
-        "Practice unit, integration, and E2E test cases.",
-      ],
-    },
-    {
-      day: 5,
-      focus: "Soft Skills & Portfolio Review",
-      tasks: [
-        "Prepare STAR format project answers.",
-        "Conduct a mock architecture interview.",
-      ],
-    },
-  ],
-};
+
 
 const sections = [
   { id: "technical", label: "Technical questions", Icon: Code2 },
@@ -120,17 +23,29 @@ const sections = [
 const Interview = () => {
   const [activeSection, setActiveSection] = useState("technical");
   const [questionIndex, setQuestionIndex] = useState(0);
+  const {interviewId} = useParams()
+  const navigate = useNavigate()
+  const {handleLogout} = useAuth();
+
+  const {report,loading,getResumePdf}=useInterview();
+ if(loading || !report){
+    return(
+      <main>
+        <h1>Loading your interview plan</h1>
+      </main>
+    )
+  }
   const questions =
     activeSection === "behavioral"
-      ? interviewReport.behavioralQuestions
-      : interviewReport.technicalQuestions;
+      ? report.behavioralQuestions
+      : report.technicalQuestions;
   const activeQuestion = questions[questionIndex] ?? questions[0];
 
   const selectSection = (section) => {
     setActiveSection(section);
     setQuestionIndex(0);
   };
-
+ 
   return (
     <main className="interview-page">
       <header className="interview-header">
@@ -141,7 +56,14 @@ const Interview = () => {
           <span>ResumeCraft</span>
         </div>
         <div className="header-actions">
-          <span className="status-dot" /> Strategy generated{" "}
+          <button className="button primary-button"
+          onClick={()=>{
+             handleLogout()
+            navigate('/')
+          }}
+          >
+            Logout
+          </button>
           
         </div>
       </header>
@@ -200,11 +122,11 @@ const Interview = () => {
                   <h2>Your preparation plan</h2>
                 </div>
                 <span className="count-badge">
-                  {interviewReport.preparationPlan.length} days
+                  {report.preparationPlan.length} days
                 </span>
               </div>
               <div className="roadmap-list">
-                {interviewReport.preparationPlan.map((day) => (
+                {report.preparationPlan.map((day) => (
                   <article className="roadmap-item" key={day.day}>
                     <span className="day-number">
                       {String(day.day).padStart(2, "0")}
@@ -289,7 +211,7 @@ const Interview = () => {
         <aside className="skill-panel">
             <div className="match-score">
           <span>Match score</span>
-          <strong>{interviewReport.matchScore}%</strong>
+          <strong>{report.matchScore}%</strong>
         </div>
           <div className="skill-heading">
             <div>
@@ -305,7 +227,7 @@ const Interview = () => {
             Topics worth strengthening before your interview.
           </p>
           <div className="skill-list">
-            {interviewReport.skillGaps.map((gap) => (
+            {report.skillGaps.map((gap) => (
               <div className="skill-item" key={gap.skill}>
                 <span>{gap.skill}</span>
                 <small className={`severity ${gap.severity}`}>
@@ -314,12 +236,13 @@ const Interview = () => {
               </div>
             ))}
           </div>
-          <div className="score-note">
-            <strong>Strong foundation</strong>
-            <span>
-              Your profile aligns well with the role. A little focused practice
-              will make the difference.
-            </span>
+          <div className="download-btn">
+            <button
+              onClick={()=>{getResumePdf(interviewId)}}
+            className="button primary-button">
+              <svg height={"0.8rem"} style={{marginRight:"0.3rem"}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z"></path></svg>
+              Download Resume
+            </button>
           </div>
         </aside>
       </section>
