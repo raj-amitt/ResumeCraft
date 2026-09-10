@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { useInterview } from "../hooks/useInterview";
 import {useNavigate} from "react-router"
 import { useAuth } from "../../auth/hooks/useAuth";
+import { BriefcaseBusiness } from "lucide-react";
 
 const Home = () => {
 
@@ -31,17 +32,28 @@ const Home = () => {
     )
   }
   return (
+
     <main className="home">
       <header className="home-header">
-        <div className="home-top-header">
-        <p className="eyebrow">ResumeCraft</p>
-        <button className="button primary-button"
-        onClick={()=>{
-          handleLogout()
-          navigate('/')
-        }}
-        >Logout</button>
+        <div className="brand-lockup">
+          <span className="brand-mark">
+            <BriefcaseBusiness aria-hidden="true" focusable="false" />
+          </span>
+          <span>ResumeCraft</span>
         </div>
+        <div className="header-actions">
+          <button className="button primary-button"
+            onClick={()=>{
+              handleLogout()
+              navigate('/')
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      <section className="home-summary">
         <h1>
           Create Your <span>Interview Plan</span>
         </h1>
@@ -49,7 +61,8 @@ const Home = () => {
           Let our AI analyze the job requirements and your profile to
           build a winning strategy.
         </p>
-      </header>
+      </section>
+      
 
       <form className="interview-input-group">
         <section className="form-panel job-panel">

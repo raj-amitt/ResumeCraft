@@ -18,7 +18,11 @@ const Login = () => {
   }
 
   return (
-    <main>
+    <main className="auth-page">
+      <p className="auth-branding">
+        <strong>ResumeCraft</strong>
+        <span>AI-powered interview preparation and strategy</span>
+      </p>
       <div className="form-container">
         <h1>Login</h1>
 

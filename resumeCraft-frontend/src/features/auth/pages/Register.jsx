@@ -1,3 +1,4 @@
+import "../auth.form.scss";
 import { useNavigate, Link } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
@@ -21,7 +22,11 @@ const Register = () => {
     );
   }
   return (
-    <main>
+    <main className="auth-page">
+      <p className="auth-branding">
+        <strong>ResumeCraft</strong>
+        <span>AI-powered interview preparation and strategy</span>
+      </p>
       <div className="form-container">
         <h1>Resigter</h1>
 

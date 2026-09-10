@@ -17,3 +17,6 @@ apply-state-*.json
 
 # Resume / personal documents
 *.pdf
+
+dist
+dist-ssr
