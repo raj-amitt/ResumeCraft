@@ -7,8 +7,17 @@ const interviewReportModel = require("../models/interviewReport.model");
  * @access private
  */
 async function generateInterviewReportController(req, res) {
-  const pdfParse = require("pdf-parse");
+try {
+    const pdfParse = require("pdf-parse");
+   console.log("FILE:", req.file);
+    console.log("BODY:", req.body);
+    console.log("USER:", req.user);
 
+        if (!req.file) {
+      return res.status(400).json({
+        message: "Resume file is required",
+      });
+    }
   const resumeContent = await new pdfParse.PDFParse(
     Uint8Array.from(req.file.buffer),
   ).getText();
@@ -32,6 +41,15 @@ async function generateInterviewReportController(req, res) {
       message: "Interview Report Generated Successfully",
       interviewReport,
     });
+} catch (error) {
+   console.error("GENERATE INTERVIEW REPORT ERROR:");
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Failed to generate interview report",
+      error: error.message,
+    });
+}
 }
 
 /**
