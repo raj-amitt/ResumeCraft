@@ -103,7 +103,8 @@ async function generateResumePdfController(req,res) {
   }
   const{resume,selfDescription,jobDescription} = interviewReport
 
-  const pdfBuffer = await generateResumePdf({resume,selfDescription,jobDescription})
+  try {
+    const pdfBuffer = await generateResumePdf({resume,selfDescription,jobDescription})
 
   res.set({
     "Content-Type": "application/pdf",
@@ -111,6 +112,24 @@ async function generateResumePdfController(req,res) {
   })
 
   res.send(pdfBuffer)
+  } catch (error) {
+    console.error("Resume generation error:", error);
+
+  if (error.code === "AI_SERVICE_BUSY") {
+
+    return res.status(503).json({
+      success: false,
+      code: "AI_SERVICE_BUSY",
+      message:
+        "We couldn't generate your resume right now because our AI services are temporarily busy. Please try again in a few minutes."
+    });
+  }
+
+  return res.status(500).json({
+    success: false,
+    message: "Something went wrong while generating your resume."
+  });
+  }
 }
 
 module.exports = {

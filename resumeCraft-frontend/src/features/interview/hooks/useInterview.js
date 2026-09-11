@@ -14,8 +14,18 @@ export const useInterview = () => {
   if (!context) {
     throw new Error("UseInterview must be used within an InterviewProvider");
   }
-  const { loading, setLoading, report, setReport, reports, setReports } =
-    context;
+  const {
+    loading,
+    setLoading,
+    report,
+    setReport,
+    reports,
+    setReports,
+    error,
+    setError,
+    resumeLoading,
+    setResumeLoading,
+  } = context;
 
   const generateReport = async ({
     jobDescription,
@@ -23,9 +33,8 @@ export const useInterview = () => {
     resumeFile,
   }) => {
     setLoading(true);
-    let response = null;
     try {
-      response = await generateInterviewReport({
+      const response = await generateInterviewReport({
         jobDescription,
         selfDescription,
         resumeFile,
@@ -41,9 +50,8 @@ export const useInterview = () => {
 
   const getReportById = async (interviewId) => {
     setLoading(true);
-    let response = null;
     try {
-      response = await getInterviewReportById(interviewId);
+      const response = await getInterviewReportById(interviewId);
       setReport(response.interviewReport);
     } catch (error) {
       console.log(error);
@@ -55,9 +63,8 @@ export const useInterview = () => {
 
   const getReports = async () => {
     setLoading(true);
-    let response = null;
     try {
-      response = await getAllInterviewReports();
+      const response = await getAllInterviewReports();
       setReports(response.interviewReports);
     } catch (error) {
       console.log(error);
@@ -67,10 +74,12 @@ export const useInterview = () => {
     return response.interviewReports;
   };
   const getResumePdf = async (interviewReportId) => {
-    setLoading(true);
-    let response;
+      setResumeLoading(true);
+
+    setError("");
+
     try {
-      response = await generateResumePdf({ interviewReportId });
+      const response = await generateResumePdf({ interviewReportId });
       const url = window.URL.createObjectURL(
         new Blob([response], { type: "application/pdf" }),
       );
@@ -80,9 +89,27 @@ export const useInterview = () => {
       document.body.appendChild(link);
       link.click();
     } catch (error) {
-      console.log(error);
+      console.error("Resume generation failed:", error);
+
+      if (error.response?.data instanceof Blob) {
+        const text = await error.response.data.text();
+
+        try {
+          const data = JSON.parse(text);
+
+          if (data.code === "AI_SERVICE_BUSY") {
+            setError(data.message);
+            return;
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError);
+        }
+      }
+
+      setError("Something went wrong while generating your resume.");
     } finally {
-      setLoading(false);
+        setResumeLoading(false);
+
     }
   };
   useEffect(() => {
@@ -99,6 +126,8 @@ export const useInterview = () => {
     generateReport,
     getReportById,
     getReports,
-    getResumePdf
+    getResumePdf,
+    error,
+    resumeLoading
   };
 };

@@ -103,6 +103,65 @@ const interviewReportSchema = z.object({
     ),
 });
 
+const MODELS = [
+  "gemini-3.7-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+];
+
+function isTemporaryAIError(error) {
+  const status = error?.status || error?.code;
+
+  return status === 429 || status === 500 || status === 503;
+}
+
+async function generateWithFallback({ contents, config }) {
+  let lastError;
+
+  for (const model of MODELS) {
+    try {
+      console.log(`Trying AI model: ${model}`);
+
+      const response = await ai.models.generateContent({
+        model,
+        contents,
+        config,
+      });
+
+      console.log(`AI generation successful with: ${model}`);
+
+      return response;
+    } catch (error) {
+      lastError = error;
+
+      console.error(
+        `AI model ${model} failed:`,
+        error?.message || error
+      );
+
+      if (!isTemporaryAIError(error)) {
+        throw error;
+      }
+
+      console.log(`Trying next model...`);
+    }
+  }
+
+  const error = new Error(
+    "All AI models are currently unavailable"
+  );
+
+  error.code = "AI_SERVICE_BUSY";
+  error.status = 503;
+  error.cause = lastError;
+
+  throw error;
+}
+
 async function generateInterviewReport({
   resume,
   selfDescription,
@@ -112,8 +171,7 @@ async function generateInterviewReport({
     Resume: ${resume}
     Self Description: ${selfDescription}
     Job Description: ${jobDescription}`;
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+  const response = await generateWithFallback({
     contents: prompt,
     config: {
       responseMimeType: "application/json",
@@ -261,14 +319,13 @@ Additional JSON fields
 Any text before or after the JSON object
 
 The final HTML must be ready to pass directly to Puppeteer's page.setContent() method.`;
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: z.toJSONSchema(resumePdfSchema),
-      },
-    });
+    const response = await generateWithFallback({
+  contents: prompt,
+  config: {
+    responseMimeType: "application/json",
+    responseSchema: z.toJSONSchema(resumePdfSchema),
+  },
+});
     const jsonContent = JSON.parse(response.text);
     console.log("JSON CONTENT:", jsonContent);
 
