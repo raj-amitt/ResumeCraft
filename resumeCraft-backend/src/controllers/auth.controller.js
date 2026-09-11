@@ -1,5 +1,5 @@
 const userModel = require("../models/user.model");
-const tokenBlacklistModel = require('../models/blacklist.model')
+const tokenBlacklistModel = require("../models/blacklist.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -10,53 +10,72 @@ const jwt = require("jsonwebtoken");
  * @access Public
  */
 async function registerUserController(req, res) {
-  const { email, username, password } = req.body;
-  if (!username || !email || !password) {
-    return res.status(400).json({
-      message: "Please provide email, username and password",
-    });
-  }
-  const isUserAlreadyExists = await userModel.findOne({
-    $or: [{ email }, { username }],
-  });
-  if (isUserAlreadyExists) {
-    if (isUserAlreadyExists.username == username) {
+  try {
+    const { email, username, password } = req.body;
+
+    if (!username || !email || !password) {
       return res.status(400).json({
-        message: "Account with username already exists",
-      });
-    } else if (isUserAlreadyExists) {
-      return res.status(400).json({
-        message: "Account with email already exists",
+        message: "Please provide email, username and password",
       });
     }
+
+    const isUserAlreadyExists = await userModel.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (isUserAlreadyExists) {
+      if (isUserAlreadyExists.username === username) {
+        return res.status(400).json({
+          message: "Account with username already exists",
+        });
+      }
+
+      if (isUserAlreadyExists.email === email) {
+        return res.status(400).json({
+          message: "Account with email already exists",
+        });
+      }
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const user = await userModel.create({
+      username,
+      email,
+      password: hash,
+    });
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        username: user.username,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    return res.status(201).json({
+      message: "User registered Successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+
+    return res.status(500).json({
+      message: "Registration failed",
+      error: error.message,
+    });
   }
-  const hash = await bcrypt.hash(password, 10);
-  const user = await userModel.create({
-    username,
-    email,
-    password: hash,
-  });
-  const token = jwt.sign(
-    {
-      id: user._id,
-      username: user.username,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" },
-  );
-  res.cookie("token", token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-});
-  res.status(201).json({
-    message: "User registered Successfully",
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
-  });
 }
 
 /**
@@ -88,10 +107,10 @@ async function loginUserController(req, res) {
     { expiresIn: "1d" },
   );
   res.cookie("token", token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-});
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   res.status(200).json({
     message: "User logged in Successfully",
     user: {
@@ -108,15 +127,15 @@ async function loginUserController(req, res) {
  * @description Logout a user, clears the token cookie and adds it to tokenBlacklist
  * @access Public
  */
-async function logoutUserController(req,res){
-  const token = req.cookies.token
-  if(token){
-    await tokenBlacklistModel.create({token})
+async function logoutUserController(req, res) {
+  const token = req.cookies.token;
+  if (token) {
+    await tokenBlacklistModel.create({ token });
   }
   res.clearCookie("token");
   res.status(200).json({
-    message:"User logged out successfully"
-  })
+    message: "User logged out successfully",
+  });
 }
 /**
  * @name getMeController
@@ -124,22 +143,26 @@ async function logoutUserController(req,res){
  * @description Get the current logged in user details from the token
  * @access Private
  */
-async function getMeController(req,res){
-  const user = await userModel.findById(req.user.id)
-  if(!user){
+async function getMeController(req, res) {
+  const user = await userModel.findById(req.user.id);
+  if (!user) {
     return res.status(401).json({
-      message:"Unauthorized"
-    })
+      message: "Unauthorized",
+    });
   }
   res.status(200).json({
-    message:"User Details fetched successfully",
-    user:{
-      id:user._id,
+    message: "User Details fetched successfully",
+    user: {
+      id: user._id,
       username: user.username,
-      email: user.email
-    }
-  })
-
+      email: user.email,
+    },
+  });
 }
 
-module.exports = { registerUserController, loginUserController, logoutUserController, getMeController};
+module.exports = {
+  registerUserController,
+  loginUserController,
+  logoutUserController,
+  getMeController,
+};
