@@ -136,7 +136,7 @@ const Home = () => {
               hidden
               name="resume"
               id="resume"
-              accept=".pdf,.docx"
+              accept=".pdf"
             />
           </div>
 
