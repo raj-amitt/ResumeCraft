@@ -104,7 +104,6 @@ const interviewReportSchema = z.object({
 });
 
 const MODELS = [
-  
   "gemini-3.5-flash",
   "gemini-3.5-flash-lite",
   "gemini-3.1-flash-lite",
@@ -139,10 +138,7 @@ async function generateWithFallback({ contents, config }) {
     } catch (error) {
       lastError = error;
 
-      console.error(
-        `AI model ${model} failed:`,
-        error?.message || error
-      );
+      console.error(`AI model ${model} failed:`, error?.message || error);
 
       if (!isTemporaryAIError(error)) {
         throw error;
@@ -152,9 +148,7 @@ async function generateWithFallback({ contents, config }) {
     }
   }
 
-  const error = new Error(
-    "All AI models are currently unavailable"
-  );
+  const error = new Error("All AI models are currently unavailable");
 
   error.code = "AI_SERVICE_BUSY";
   error.status = 503;
@@ -186,12 +180,18 @@ async function generatePdfFromHtml(htmlContent) {
   const puppeteer = await import("puppeteer");
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+  await page.setContent(htmlContent, {
+    waitUntil: "domcontentloaded",
+    timeout: 30000,
+  });
 
-  const pdfBuffer = await page.pdf({ format: "A4",margin:{
-    left:"15px",
-    right:"15px"
-  }});
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    margin: {
+      left: "15px",
+      right: "15px",
+    },
+  });
 
   await browser.close();
   return pdfBuffer;
@@ -321,12 +321,12 @@ Any text before or after the JSON object
 
 The final HTML must be ready to pass directly to Puppeteer's page.setContent() method.`;
     const response = await generateWithFallback({
-  contents: prompt,
-  config: {
-    responseMimeType: "application/json",
-    responseSchema: z.toJSONSchema(resumePdfSchema),
-  },
-});
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: z.toJSONSchema(resumePdfSchema),
+      },
+    });
     const jsonContent = JSON.parse(response.text);
     console.log("JSON CONTENT:", jsonContent);
 
