@@ -40,12 +40,12 @@ export const useInterview = () => {
         resumeFile,
       });
       setReport(response.interviewReport);
+      return response.interviewReport;
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
-    return response.interviewReport;
   };
 
   const getReportById = async (interviewId) => {
@@ -53,12 +53,12 @@ export const useInterview = () => {
     try {
       const response = await getInterviewReportById(interviewId);
       setReport(response.interviewReport);
+      return response.interviewReport;
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
-    return response.interviewReport;
   };
 
   const getReports = async () => {
@@ -66,15 +66,15 @@ export const useInterview = () => {
     try {
       const response = await getAllInterviewReports();
       setReports(response.interviewReports);
+      return response.interviewReports;
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
-    return response.interviewReports;
   };
   const getResumePdf = async (interviewReportId) => {
-      setResumeLoading(true);
+    setResumeLoading(true);
 
     setError("");
 
@@ -108,8 +108,7 @@ export const useInterview = () => {
 
       setError("Something went wrong while generating your resume.");
     } finally {
-        setResumeLoading(false);
-
+      setResumeLoading(false);
     }
   };
   useEffect(() => {
@@ -128,6 +127,6 @@ export const useInterview = () => {
     getReports,
     getResumePdf,
     error,
-    resumeLoading
+    resumeLoading,
   };
 };
